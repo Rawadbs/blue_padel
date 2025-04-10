@@ -3,93 +3,135 @@ import 'package:bluepadel/Services/urllancherservies.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
-class howmanyexexercizeview extends StatefulWidget {
-  const howmanyexexercizeview({super.key});
+class HowManyExerciseView extends StatefulWidget {
+  const HowManyExerciseView({super.key});
   static const routeName = '/howmanyexexercizeview';
 
   @override
-  State<howmanyexexercizeview> createState() => _howmanyexexercizeviewState();
+  State<HowManyExerciseView> createState() => _HowManyExerciseViewState();
 }
 
-class _howmanyexexercizeviewState extends State<howmanyexexercizeview> {
-  GlobalKey<FormState> formkey = GlobalKey<FormState>();
-  TextEditingController controller = TextEditingController();
-  TextEditingController controller2 = TextEditingController();
+class _HowManyExerciseViewState extends State<HowManyExerciseView> {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController sessionsController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
-        title: const Text('Register Exercise'),
+        backgroundColor: const Color(0xFFF5F7FF),
       ),
       body: Center(
-          child: Form(
-        key: formkey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                keyboardType: TextInputType.number,
-                controller: controller2,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter number of exercises',
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Text(
+                'Register Your Exercise',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A3F),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                  controller: controller,
-                  validator: MultiValidator([
-                    LengthRangeValidator(
-                        min: 9, max: 9, errorText: 'Enter 9 digit number'),
-                    RequiredValidator(errorText: 'Enter mobile number'),
-                  ]),
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'ex: 553610108 without zero in start',
-                    border: OutlineInputBorder(),
-                    labelText: 'Phone Number',
-                    prefixIcon: Icon(Icons.phone),
-                  )),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formkey.currentState!.validate()) {
-                  
-                 
-                      SupabaseServices().addnewsession(
-                          controller.text, int.parse(controller2.text));
-                      openWhatsAppWeb(controller.text,
-                        '''
- بادل مكة
-تم تأكيد تسجيل اشتراككم في عدد(${controller2.text}) تمارين بنجاح
-
+              const SizedBox(height: 8),
+              const Text(
+                'Register your sessions easily with your phone number',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 40),
+              Container(
+                padding: const EdgeInsets.all(24),
+                width: 400,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: sessionsController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Enter number of exercises',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'ex: 553610108 without zero',
+                          labelText: 'Phone Number',
+                          prefixIcon: Icon(Icons.phone),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: MultiValidator([
+                          RequiredValidator(errorText: 'Enter mobile number'),
+                          LengthRangeValidator(
+                            min: 9,
+                            max: 9,
+                            errorText: 'Enter a 9-digit number',
+                          ),
+                        ]).call,
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5A48F2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              SupabaseServices().addnewsession(
+                                phoneController.text,
+                                int.parse(sessionsController.text),
+                              );
+                              openWhatsAppWeb(phoneController.text, '''
+بادل مكة
+تم تأكيد تسجيل اشتراككم في عدد(${sessionsController.text}) تمارين بنجاح
 
 شكرا لثقتكم بنا 
 Blue Padel Makkah
 ''');
-                    }
-                  },
-                
-             
-              child: Text(
-                'Register Exercise',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
+                            }
+                          },
+                          child: const Text(
+                            'Register Exercise',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

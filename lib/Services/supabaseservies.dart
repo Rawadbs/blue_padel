@@ -1,4 +1,3 @@
-import 'package:bluepadel/Features/searchuser/model/searchusermodel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
  class SupabaseServices {
