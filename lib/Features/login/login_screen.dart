@@ -1,3 +1,4 @@
+import 'package:bluepadel/Features/option/optionview.dart';
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -22,25 +24,34 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _registerUser() async {
+  Future<void> _loginUser() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final response = await Supabase.instance.client.auth.signUp(
+        final response = await Supabase.instance.client.auth.signInWithPassword(
           email: emailController.text,
           password: passwordController.text,
         );
 
         if (response.user != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registered successfully')),
-            
+            const SnackBar(content: Text('Login successful')),
           );
-          Navigator.pushNamed(context, '/OptionView');
+          Navigator.pushReplacementNamed(context, OptionView.routeName);
         }
+      } on AuthException catch (e) {
+        // ✅ الرسائل المتوقعة من Supabase عند فشل تسجيل الدخول
+        String message =
+            e.message.toLowerCase().contains("invalid login credentials")
+                ? 'Email or password is incorrect'
+                : e.message;
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: $e')),
+          const SnackBar(
+              content: Text('Something went wrong. Please try again')),
         );
       }
     }
@@ -83,17 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Color(0xFF1A1A3F),
                     ),
                   ),
-                 
                   const SizedBox(height: 24),
-
-                  // Email Field
                   TextFormField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     validator: MultiValidator([
                       RequiredValidator(errorText: 'Enter your email'),
                       EmailValidator(errorText: 'Enter a valid email'),
-                    ]),
+                    ]).call,
                     decoration: InputDecoration(
                       hintText: 'Email Address',
                       prefixIcon: const Icon(Icons.email),
@@ -103,27 +111,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Password Field
                   TextFormField(
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText: _obscurePassword,
                     validator: MultiValidator([
                       RequiredValidator(errorText: 'Enter password'),
                       MinLengthValidator(6,
                           errorText: 'Password must be at least 6 characters'),
-                    ]),
+                    ]).call,
                     decoration: InputDecoration(
                       hintText: 'Password',
                       prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Register Button
                   SizedBox(
                     width: double.infinity,
                     height: 48,
@@ -134,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _registerUser,
+                      onPressed: _loginUser,
                       child: const Text(
                         'Login Now',
                         style: TextStyle(color: Colors.white, fontSize: 16),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 class OptionView extends StatelessWidget {
   const OptionView({super.key});
+  static const routeName = '/optionview';
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +58,6 @@ class OptionView extends StatelessWidget {
                   icon: Icons.check_circle_outline,
                   onPressed: () {
                     Navigator.pushNamed(context, RegisterExercise.routeName);
-                  },
-                ),
-                _buildCard(
-                  context,
-                  title: 'Otp',
-                  subtitle: 'Check in to your upcoming or ongoing sessions',
-                  buttonLabel: 'Check In',
-                  icon: Icons.check_circle_outline,
-                  onPressed: () {
-                    Navigator.pushNamed(context, OtpScreen.routeName);
                   },
                 ),
               ],

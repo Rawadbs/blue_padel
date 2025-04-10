@@ -1,6 +1,8 @@
+import 'package:bluepadel/Features/option/optionview.dart';
 import 'package:bluepadel/Services/supabaseservies.dart';
 import 'package:bluepadel/Services/urllancherservies.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
 class RegisterExercise extends StatefulWidget {
@@ -21,6 +23,12 @@ class _RegisterExerciseState extends State<RegisterExercise> {
       backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F7FF),
+        elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pushNamed(context, OptionView.routeName);
+          },
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -53,7 +61,11 @@ class _RegisterExerciseState extends State<RegisterExercise> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: controller,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(
+                          9), // ✅ يمنع المستخدم من تجاوز 9 أرقام
+                    ],
                     validator: MultiValidator([
                       RequiredValidator(errorText: 'Enter mobile number'),
                       LengthRangeValidator(
@@ -84,19 +96,29 @@ class _RegisterExerciseState extends State<RegisterExercise> {
                       ),
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
-                          int session = await SupabaseServices()
-                              .getcurrentsession(controller.text);
+                          final phone = controller.text;
+
+                          final exists =
+                              await SupabaseServices().isuserexist(phone);
+
+                          if (!exists) {
+                            _showSnackBar('Phone number is not registered');
+                            return; // لا تكمل التنفيذ
+                          }
+
+                          int session =
+                              await SupabaseServices().getcurrentsession(phone);
 
                           if (session == 0) {
                             _showSnackBar(
                                 'Please add at least one exercise first');
                           } else {
-                            await SupabaseServices().updatecurrentsession(
-                                controller.text, session - 1);
+                            await SupabaseServices()
+                                .updatecurrentsession(phone, session - 1);
 
                             _showSnackBar('Exercise registered successfully');
 
-                            openWhatsAppWeb(controller.text, '''
+                            openWhatsAppWeb(phone, '''
 شكرا لاختياركم ملاعب بلو بادل مكة
 تم تسجيل حضوركم التمرين بنجاح
 عدد التمارين المتبقية ${session - 1}

@@ -5,6 +5,7 @@ import 'package:bluepadel/Features/option/optionview.dart';
 import 'package:bluepadel/Features/otp/otp_screen.dart';
 import 'package:bluepadel/Services/supabaseservies.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,33 +29,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-        appBarTheme: const AppBarTheme(
-          color: Colors.purple, // Sets the AppBar color
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            maximumSize: const Size(200, 100),
-            minimumSize: const Size(200, 100),
-            backgroundColor:
-                Colors.purple.withOpacity(0.8), // Sets button color
-          ),
-        ),
-      ),
       home: const LoginScreen(),
       routes: {
         Register.routeName: (context) => const Register(),
         RegisterExercise.routeName: (context) => const RegisterExercise(),
         HowManyExerciseView.routeName: (context) => const HowManyExerciseView(),
         LoginScreen.routeName: (context) => const LoginScreen(),
-        // OtpScreen.routeName: (context) => OtpScreen(
-        //       phoneNumber:
-        //           '+1234567890', // Replace with the actual phone number
-        //     ),
+        OptionView.routeName: (context) => const OptionView(),
       },
     );
   }
@@ -79,6 +60,12 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F7FF),
+        elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pushNamed(context, OptionView.routeName);
+          },
+        ),
       ),
       backgroundColor: const Color(0xFFF5F7FF),
       body: Center(
@@ -170,6 +157,10 @@ class _RegisterState extends State<Register> {
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(
+                          9), // ✅ يمنع المستخدم من تجاوز 9 أرقام
+                    ],
                     validator: MultiValidator([
                       RequiredValidator(errorText: 'Enter mobile number'),
                       LengthRangeValidator(
@@ -209,6 +200,7 @@ class _RegisterState extends State<Register> {
                                   content:
                                       Text('User registered successfully')),
                             );
+                            Navigator.pushNamed(context, OptionView.routeName);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

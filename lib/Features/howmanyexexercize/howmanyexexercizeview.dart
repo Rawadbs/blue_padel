@@ -1,6 +1,8 @@
+import 'package:bluepadel/Features/option/optionview.dart';
 import 'package:bluepadel/Services/supabaseservies.dart';
 import 'package:bluepadel/Services/urllancherservies.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
 class HowManyExerciseView extends StatefulWidget {
@@ -22,6 +24,12 @@ class _HowManyExerciseViewState extends State<HowManyExerciseView> {
       backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F7FF),
+        elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pushNamed(context, OptionView.routeName);
+          },
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -76,21 +84,25 @@ class _HowManyExerciseViewState extends State<HowManyExerciseView> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: phoneController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          hintText: 'ex: 553610108 without zero',
-                          labelText: 'Phone Number',
-                          prefixIcon: Icon(Icons.phone),
-                          border: OutlineInputBorder(),
-                        ),
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(
+                              9), // ✅ يمنع المستخدم من تجاوز 9 أرقام
+                        ],
                         validator: MultiValidator([
                           RequiredValidator(errorText: 'Enter mobile number'),
                           LengthRangeValidator(
-                            min: 9,
-                            max: 9,
-                            errorText: 'Enter a 9-digit number',
-                          ),
+                              min: 9,
+                              max: 9,
+                              errorText: 'Enter 9 digit number'),
                         ]).call,
+                        decoration: InputDecoration(
+                          hintText: '5XXXXXXXX',
+                          prefixIcon: const Icon(Icons.phone),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
@@ -116,6 +128,8 @@ class _HowManyExerciseViewState extends State<HowManyExerciseView> {
 شكرا لثقتكم بنا 
 Blue Padel Makkah
 ''');
+                              Navigator.pushNamed(
+                                  context, OptionView.routeName);
                             }
                           },
                           child: const Text(
